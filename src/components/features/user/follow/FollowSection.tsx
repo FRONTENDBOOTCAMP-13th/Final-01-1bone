@@ -4,6 +4,7 @@ import { Bookmark } from '@/types';
 import { getUserImageUrl } from '@/utils';
 
 export default function FollowSection({ byUser }: { byUser: Bookmark[] }) {
+  console.log('byuser', byUser);
   return (
     <>
       {byUser.map(bookmark => (

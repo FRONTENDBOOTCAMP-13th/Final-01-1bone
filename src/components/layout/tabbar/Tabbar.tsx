@@ -8,10 +8,12 @@ import { useEffect, useState } from 'react';
 import {
   Ghost,
   MessageCircle,
+  PawPrint,
   Radio,
   ShoppingBag,
   UserRound,
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 //          component: 탭바 컴포넌트          //
 export default function TabBar() {
@@ -47,25 +49,6 @@ export default function TabBar() {
   return (
     <>
       <nav className="fixed bottom-0 z-50 flex h-14 w-full max-w-[600px] items-center justify-around border-t border-[#EAEAEA] bg-white">
-        {/* 커뮤니티 탭 */}
-        <Link
-          href="/community"
-          className="flex h-full w-full flex-col items-center justify-center"
-          prefetch={true}
-        >
-          <motion.div
-            whileTap={{ scale: 1.2 }}
-            animate={{ scale: isActiveTab('/community') ? 1.15 : 1 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 15 }}
-          >
-            <MessageCircle
-              className="mb-1 size-5"
-              stroke={isActiveTab('/community') ? '#51AAED' : '#4B5563'}
-            />
-          </motion.div>
-          <span className="text-xs text-[#4B5563]">커뮤니티</span>
-        </Link>
-
         {/* 캐릭터 탭 */}
         <Link
           href="/character"
@@ -77,18 +60,57 @@ export default function TabBar() {
             animate={{ scale: isActiveTab('/character') ? 1.15 : 1 }}
             transition={{ type: 'spring', stiffness: 300, damping: 15 }}
           >
-            <Ghost
+            <PawPrint
               className="mb-1 size-5"
-              stroke={isActiveTab('/character') ? '#FAB91D' : '#4B5563'}
+              stroke={isActiveTab('/character') ? '#4A4A4A' : '#C3C3C3'}
             />
           </motion.div>
-          <span className="text-xs text-[#4B5563]">캐릭터</span>
+          <span
+            className={cn(
+              'text-xs',
+              isActiveTab('/character') ? 'text-[#4A4A4A]' : 'text-[#C3C3C3]',
+            )}
+          >
+            캐릭터
+          </span>
+        </Link>
+
+        {/* 커뮤니티 탭 */}
+        <Link
+          href="/community"
+          className={cn(
+            'flex h-full w-full flex-col items-center justify-center',
+            isActiveTab('/community') ? 'text-[#4A4A4A]' : 'text-[#4B5563]',
+          )}
+          prefetch={true}
+        >
+          <motion.div
+            whileTap={{ scale: 1.2 }}
+            animate={{ scale: isActiveTab('/community') ? 1.15 : 1 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+          >
+            <MessageCircle
+              className="mb-1 size-5"
+              stroke={isActiveTab('/community') ? '#4A4A4A' : '#C3C3C3'}
+            />
+          </motion.div>
+          <span
+            className={cn(
+              'text-xs',
+              isActiveTab('/community') ? 'text-[#4A4A4A]' : 'text-[#C3C3C3]',
+            )}
+          >
+            커뮤니티
+          </span>
         </Link>
 
         {/* 라이브 탭 */}
         <Link
           href="/live"
-          className="flex h-full w-full flex-col items-center justify-center"
+          className={cn(
+            'flex h-full w-full flex-col items-center justify-center',
+            isActiveTab('/live') ? 'text-[#4A4A4A]' : 'text-[#4B5563]',
+          )}
           prefetch={true}
         >
           <motion.div
@@ -98,10 +120,17 @@ export default function TabBar() {
           >
             <Radio
               className="mb-1 size-5"
-              stroke={isActiveTab('/live') ? '#FE508B' : '#4B5563'}
+              stroke={isActiveTab('/live') ? '#4A4A4A' : '#C3C3C3'}
             />
           </motion.div>
-          <span className="text-xs text-[#4B5563]">라이브</span>
+          <span
+            className={cn(
+              'text-xs',
+              isActiveTab('/live') ? 'text-[#4A4A4A]' : 'text-[#C3C3C3]',
+            )}
+          >
+            라이브
+          </span>
         </Link>
 
         {/* 쇼핑 탭 */}
@@ -117,10 +146,17 @@ export default function TabBar() {
           >
             <ShoppingBag
               className="mb-1 size-5"
-              stroke={isActiveTab('/shop') ? '#D2E308' : '#4B5563'}
+              stroke={isActiveTab('/shop') ? '#4A4A4A' : '#C3C3C3'}
             />
           </motion.div>
-          <span className="text-xs text-[#4B5563]">쇼핑</span>
+          <span
+            className={cn(
+              'text-xs',
+              isActiveTab('/shop') ? 'text-[#4A4A4A]' : 'text-[#C3C3C3]',
+            )}
+          >
+            쇼핑
+          </span>
         </Link>
 
         {/* 마이페이지 탭 */}
@@ -136,10 +172,19 @@ export default function TabBar() {
           >
             <UserRound
               className="mb-1 size-5"
-              stroke={isActiveTab(`/user/${user?._id}`) ? '#6E67DA' : '#4B5563'}
+              stroke={isActiveTab(`/user/${user?._id}`) ? '#4A4A4A' : '#C3C3C3'}
             />
           </motion.div>
-          <span className="text-xs text-[#4B5563]">마이</span>
+          <span
+            className={cn(
+              'text-xs',
+              isActiveTab(`/user/${user?._id}`)
+                ? 'text-[#4A4A4A]'
+                : 'text-[#C3C3C3]',
+            )}
+          >
+            마이
+          </span>
         </Link>
       </nav>
       <div className="h-14"></div>

@@ -32,7 +32,7 @@ export const ITEM_DATA = {
       height: 10,
     },
     hobby: 'INTERIOR',
-    z: 0,
+    z: 1,
   },
   shelf: {
     name: '선반',

@@ -11,7 +11,7 @@ export const OptionSelector = ({
   onSelect,
 }: {
   name: string;
-  options: string[];
+  options: string[] | number[];
   selectedOption: string;
   onSelect: (selectedOption: string) => void;
 }) => {
@@ -47,16 +47,16 @@ export const OptionSelector = ({
           role="listbox"
           aria-label={`${name} 옵션 선택`}
         >
-          {options.map((option, idx) => (
+          {options.map(option => (
             <li
-              key={idx}
+              key={option.toString()}
               className="cursor-pointer border-b border-[#EAEAEA] p-2 text-[#666]"
               onClick={() => {
-                onSelect(option);
+                onSelect(option.toString());
                 setIsOpen(false);
               }}
               role="option"
-              aria-selected={selectedOption === option}
+              aria-selected={selectedOption === option.toString()}
             >
               {option}
             </li>

@@ -77,7 +77,7 @@ export default function ItemPurchaseModal({ onClose, item }: Props) {
           <>
             <div className="flex flex-col items-center gap-2">
               <Image
-                src="/images/woomin/character-test-6.png" // 포인트 부족 이미지
+                src="/images/character/character-sad.webp" // 포인트 부족 이미지
                 alt="포인트 부족"
                 width={200}
                 height={200}
@@ -98,7 +98,7 @@ export default function ItemPurchaseModal({ onClose, item }: Props) {
             </p>
             <div className="flex items-center gap-2 text-gray-600">
               <Image
-                src="/images/woomin/point-test.png"
+                src="/images/etc/point.webp"
                 alt="포인트 테스트"
                 width={50}
                 height={50}

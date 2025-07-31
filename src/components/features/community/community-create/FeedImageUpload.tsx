@@ -56,10 +56,10 @@ export default function FeedImageUpload() {
       </div>
 
       {/* 하단 - 사진 업로드 UI */}
-      <div className="flex gap-3 overflow-x-auto">
+      <div className="flex gap-3 py-2">
         {/* 선택된 이미지들 */}
         {images.map((image, index) => (
-          <div key={index} className="relative flex-shrink-0">
+          <div key={index} className="relative flex-shrink-0 overflow-visible">
             <img
               src={image}
               alt={`업로드 이미지 ${index + 1}`}
@@ -69,7 +69,7 @@ export default function FeedImageUpload() {
             <button
               type="button"
               onClick={() => handleRemoveImage(index)}
-              className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white"
+              className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-[#FE508B] text-white"
             >
               <X size={16} />
             </button>

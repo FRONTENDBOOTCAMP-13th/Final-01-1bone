@@ -15,7 +15,7 @@ export function UserFeedTab({ posts }: Props) {
     return (
       <div className="text-muted-foreground flex w-full flex-col items-center text-lg">
         <Image
-          src={'/images/woomin/empty-feed-test.png'}
+          src={'/images/character/character-sleep.webp'}
           alt="테스트입니다"
           width={300}
           height={300}

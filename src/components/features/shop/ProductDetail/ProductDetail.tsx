@@ -5,12 +5,13 @@ import {
   ProductDetailInfoProps,
   ProductQuantitySelectorProps,
 } from '@/types/product';
+import { useCart } from '@/components/features/shop/ProductDetail/CartContext'; // 추가
 
 // 상품 상세 정보 컴포넌트
 export const ProductDetailInfo = ({
   item,
+  price,
   discountRate,
-  discountedPrice,
   extra,
   sizes,
   colors,
@@ -32,6 +33,9 @@ export const ProductDetailInfo = ({
     ? recommendData[extra.recommendedBy]
     : { name: '추천', color: 'bg-[#C3C3C3]', textColor: 'text-black' };
 
+  // 원가 기본값 설정
+  const originalPrice = extra.originalPrice;
+
   return (
     <section className="h-[145px] items-center justify-center px-5 py-4">
       <span
@@ -45,7 +49,7 @@ export const ProductDetailInfo = ({
       </h1>
       <span className="flex flex-col pt-2 text-[12px] text-[#C3C3C3] line-through">
         {/* 원가 */}
-        {item.price.toLocaleString()}원
+        {originalPrice.toLocaleString()}원
       </span>
       <div className="mt-1 flex items-center">
         {/* 할인률 */}
@@ -56,7 +60,7 @@ export const ProductDetailInfo = ({
         )}
         <span className="justify-self-center text-[24px] font-semibold text-black">
           {/* 할인된 금액 */}
-          {discountedPrice.toLocaleString()}원
+          {item.price.toLocaleString()}원
         </span>
         <span className="ml-auto flex h-[28px] w-[76px] items-center justify-center rounded-[4px] bg-[#F3F4F6] text-[14px] text-black">
           무료배송
@@ -66,39 +70,50 @@ export const ProductDetailInfo = ({
   );
 };
 
+// 장바구니 담기 버튼 컴포넌트
+function ProductDetail({
+  product,
+}: {
+  product: { id: string; name: string; price: number };
+}) {
+  const { addToCart } = useCart();
+
+  const handleAdd = () => {
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: 1,
+    });
+    alert('장바구니에 담겼습니다.');
+  };
+
+  return <button onClick={handleAdd}>장바구니 담기</button>;
+}
+
 // 수량 컨트롤
-// export function ProductQuantitySelector({
-//   selectedOption,
-//   quantity,
-//   onIncrease,
-//   onDecrease,
-//   price,
-//   discountedPrice,
-// }: ProductQuantitySelectorProps) {
-export function ProductQuantitySelector({
+export const ProductQuantitySelector = ({
   selectedOption,
   quantity,
   onIncrease,
   onDecrease,
   price,
-  discountedPrice,
-  item, // <- 상품명 props로 받을 경우
-}: ProductQuantitySelectorProps & { item?: { name: string } }) {
+  originalPrice,
+  item,
+}: {
+  selectedOption: string;
+  quantity: number;
+  onIncrease: () => void;
+  onDecrease: () => void;
+  price: number;
+  originalPrice: number;
+  item: { name: string };
+}) => {
   return (
     <section className="h-[100px] w-full rounded-[8px] bg-[#EAEAEA] p-3">
-      {/* <h2 className="mb-4 text-[18px] font-semibold text-black">
-        {selectedOption || '옵션을 선택하세요'}
-      </h2> */}
-      {/* 
-      {selectedOption && (
-        <h2 className="mb-4 text-[18px] font-semibold text-black">
-          {selectedOption}
-        </h2>
-      )} */}
-
       {selectedOption ? (
         <h2 className="mb-4 text-[18px] font-semibold text-black">
-          {selectedOption}
+          {item.name}
         </h2>
       ) : item?.name ? (
         <h2 className="mb-4 text-[18px] font-semibold text-black">
@@ -132,18 +147,33 @@ export function ProductQuantitySelector({
           <Plus className="h-[20] w-[20] border-[#C3C3C3]" />
         </button>
         <span className="ml-auto flex items-center justify-center text-[18px] font-semibold text-black">
-          {(quantity * discountedPrice).toLocaleString()}원
+          {(quantity * price).toLocaleString()}원
         </span>
       </div>
     </section>
   );
-}
+};
 
 // 상품 액션 버튼 컴포넌트
 export const ProductActionButtons = ({
   onCartClick,
+  onBuyNowClick,
+  product,
+  options,
 }: {
   onCartClick: () => void;
+  onBuyNowClick: () => void;
+  product: {
+    id: string;
+    name: string;
+    price: number;
+    productImg: string;
+  };
+  options?: {
+    id: string;
+    name: string;
+    price: number;
+  }[];
 }) => {
   return (
     <section className="flex h-[54px] gap-3">
@@ -157,6 +187,7 @@ export const ProductActionButtons = ({
       <button
         type="button"
         className="w-[60%] cursor-pointer rounded-[8px] bg-[#FE508B] text-[18px] font-semibold text-white"
+        onClick={onBuyNowClick}
       >
         구매하기
       </button>
@@ -164,17 +195,17 @@ export const ProductActionButtons = ({
   );
 };
 
-// 옵션 선택 컴포넌트 클라이언트 사이드 관리로 별도 파일 생성 (OptionSelector.tsx)
-
 // 총 결제 금액 컴포넌트
 export const TotalPrice = ({
   quantity,
   price,
+  originalPrice,
 }: {
   quantity: number;
   price: number;
+  originalPrice?: number;
 }) => {
-  const totalPrice = quantity * price;
+  const totalPrice = quantity * (originalPrice ?? price);
 
   return (
     <section className="z-20 flex h-[54px] items-center justify-between border-t border-[#EAEAEA] bg-white px-4 pt-4">

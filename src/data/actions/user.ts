@@ -79,11 +79,13 @@ export async function updateUserInfo(
     const nickname = formData.get('nickname')?.toString();
     const introduction = formData.get('introduction')?.toString();
     const address = formData.get('address')?.toString();
+    const phone = formData.get('phone')?.toString();
     const detail = formData.get('detail')?.toString();
     const equippedItemCodes = formData.get('equippedItemCodes');
     const ownedItemCodes = formData.get('ownedItemCodes');
     const point = formData.get('point');
     const hobby = formData.get('hobby');
+    const postcode = formData.get('postcode');
     const extraRes = await getUserAttribute(_id, 'extra');
     const prevExtra = extraRes.ok === 1 ? extraRes.item.extra : {};
     let image;
@@ -99,12 +101,14 @@ export async function updateUserInfo(
     }
     const body = {
       ...(address && { address }),
+      ...(phone && { phone }),
       extra: {
         ...prevExtra,
         ...(nickname && { nickname }),
         ...(introduction && { introduction }),
         ...(hobby && { hobby }),
         ...(detail && { detail_address: detail }),
+        ...(postcode && { postcode }),
         ...(equippedItemCodes && {
           equippedItemCodes: JSON.parse(
             formData.get('equippedItemCodes') as string,

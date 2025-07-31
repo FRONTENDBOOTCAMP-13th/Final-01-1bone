@@ -28,6 +28,7 @@
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.60.0",
     "react-hot-toast": "^2.5.2",
+    "react-spinners": "^0.17.0",
     "react-swipeable": "^7.0.2",
     "react-use-draggable-scroll": "^0.4.7",
     "swiper": "^11.2.10",

@@ -1,30 +1,38 @@
-'use client';
-
-import { useEffect, useState } from 'react';
 import { getUserInfo } from '@/data/actions/user';
 import { UserEditForm } from '@/components/features/user/UserEditForm';
-import { useAuthStore } from '@/store/auth.store';
-import { User } from '@/types';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
-export default function UserEditPage() {
-  const currentUser = useAuthStore(state => state.user);
-  const accessToken = useAuthStore(state => state.accessToken);
-  const [user, setUser] = useState<User | null>(null);
+export default async function UserEditPage() {
+  const session = await getServerSession(authOptions);
 
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      if (!accessToken) return null;
+  if (!session?.user?._id) {
+    throw new Error('로그인이 필요합니다');
+  }
 
-      if (!currentUser?._id) return;
-      const res = await getUserInfo(currentUser._id);
-      if (res.ok === 1 && res.item) {
-        setUser(res.item);
-      }
-    };
+  const res = await getUserInfo(session.user._id);
 
-    fetchUserInfo();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser]);
+  if (res.ok !== 1) return null;
+
+  const user = res.item;
+  // const currentUser = useAuthStore(state => state.user);
+  // const accessToken = useAuthStore(state => state.accessToken);
+  // const [user, setUser] = useState<User | null>(null);
+
+  // useEffect(() => {
+  //   const fetchUserInfo = async () => {
+  //     if (!accessToken) return null;
+
+  //     if (!currentUser?._id) return;
+  //     const res = await getUserInfo(currentUser._id);
+  //     if (res.ok === 1 && res.item) {
+  //       setUser(res.item);
+  //     }
+  //   };
+
+  //   fetchUserInfo();
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [currentUser]);
 
   if (!user) return null;
 

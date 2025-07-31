@@ -6,6 +6,7 @@ import {
   BookmarkPost,
   GetUserBookmarkResponseDto,
 } from '@/types';
+import { revalidatePath } from 'next/cache';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const CLIENT_ID = process.env.NEXT_PUBLIC_CLIENT_ID || '';
@@ -35,7 +36,15 @@ export async function postBookmark(
       }),
     });
 
-    return res.json();
+    const result = await res.json();
+
+    // 북마크 추가 성공 시 관련 페이지 캐시 무효화
+    if (result.ok === 1) {
+      revalidatePath('/user/[id]/bookmark', 'page');
+      revalidatePath('/user/[id]', 'page');
+    }
+
+    return result;
   } catch (error) {
     console.error(error);
     return {
@@ -64,7 +73,15 @@ export async function deleteBookmark(
       }),
     });
 
-    return res.json();
+    const result = await res.json();
+
+    // 북마크 삭제 성공 시 관련 페이지 캐시 무효화 - 이 부분이 없었음!
+    if (result.ok === 1) {
+      revalidatePath('/user/[id]/bookmark', 'page'); // 스크랩 페이지
+      revalidatePath('/user/[id]', 'page'); // 마이페이지
+    }
+
+    return result;
   } catch (error) {
     console.error(error);
     return {
@@ -75,6 +92,7 @@ export async function deleteBookmark(
   }
 }
 
+// 나머지 함수들은 그대로...
 export async function getBookmarkList(
   type: 'product' | 'user' | 'post',
   accessToken: string,
@@ -131,7 +149,7 @@ export async function getBookmark(
 export async function getBookmarks(
   type: 'product' | 'user' | 'post',
   accessToken: string,
-): ApiResPromise<BookmarkPost[]> {
+): ApiResPromise<Bookmark[]> {
   try {
     const res = await fetch(`${API_URL}/bookmarks/${type}`, {
       method: 'GET',

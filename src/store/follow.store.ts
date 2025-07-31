@@ -1,17 +1,15 @@
 import { create } from 'zustand';
 
 interface FollowState {
-  followingCount: number;
-  setFollowingCount: (count: number) => void;
-  increaseFollowing: () => void;
-  decreaseFollowing: () => void;
+  followCount: number;
+  setFollowCount: (count: number) => void;
+  increaseFollow: () => void;
+  decreaseFollow: () => void;
 }
 
 export const useFollowStore = create<FollowState>(set => ({
-  followingCount: 0,
-  setFollowingCount: count => set({ followingCount: count }),
-  increaseFollowing: () =>
-    set(state => ({ followingCount: state.followingCount + 1 })),
-  decreaseFollowing: () =>
-    set(state => ({ followingCount: state.followingCount - 1 })),
+  followCount: 0,
+  setFollowCount: count => set({ followCount: count }),
+  increaseFollow: () => set(state => ({ followCount: state.followCount + 1 })),
+  decreaseFollow: () => set(state => ({ followCount: state.followCount - 1 })),
 }));

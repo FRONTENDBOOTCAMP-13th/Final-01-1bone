@@ -46,9 +46,9 @@ export default function UserPreviewCard({
   const accessToken = useAuthStore(state => state.accessToken);
 
   //          function: 팔로우 수 증가 함수          //
-  const increaseFollowing = useFollowStore(state => state.increaseFollowing);
+  const increaseFollow = useFollowStore(state => state.increaseFollow);
   //          function: 팔로우 수 감소 함수          //
-  const decreaseFollowing = useFollowStore(state => state.decreaseFollowing);
+  const decreaseFollow = useFollowStore(state => state.decreaseFollow);
 
   //          event handler: 팔로우/언팔로우 버튼 클릭 이벤트 처리          //
   const handleFollow = async () => {
@@ -57,7 +57,7 @@ export default function UserPreviewCard({
       const res = await deleteBookmark(bookmarkId, accessToken);
       if (res.ok) {
         setFollowing(false);
-        decreaseFollowing();
+        decreaseFollow();
         setBookmarkId(null);
       }
     } else {
@@ -65,7 +65,7 @@ export default function UserPreviewCard({
       const res = await postBookmark('user', id, accessToken);
       if (res.ok) {
         setFollowing(true);
-        increaseFollowing();
+        increaseFollow();
         setBookmarkId(res.item._id);
       }
     }
@@ -99,7 +99,7 @@ export default function UserPreviewCard({
         <div
           className={cn(
             'relative aspect-square overflow-hidden rounded-full',
-            variant === 'vertical' ? 'mb-3 w-14' : 'w-10',
+            variant === 'vertical' ? 'mb-3 w-14' : 'w-14',
           )}
         >
           <Image
@@ -107,7 +107,7 @@ export default function UserPreviewCard({
             alt="프로필 이미지"
             fill
             className="pointer-events-none object-cover object-center select-none"
-            sizes={variant === 'vertical' ? '56px' : '40px'}
+            sizes={'56px'}
             draggable={false}
           />
         </div>

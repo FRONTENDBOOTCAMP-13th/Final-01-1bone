@@ -5,6 +5,7 @@ import { ShopAd } from '@/components/features/shop/ShopAd';
 import { ShopCategory } from '@/components/features/shop/ShopCategory';
 import { ShopProduct } from '@/components/features/shop/ShopProduct';
 import { fetchProducts } from '@/data/functions/ProductFetch';
+import { useLiveStore } from '@/store/live.store';
 import { Product } from '@/types';
 import { JSX, useEffect, useRef, useState } from 'react';
 
@@ -62,6 +63,12 @@ export default function ShopList({ initialData }: { initialData: Product[] }) {
   useEffect(() => {
     loadingProducts(page); //page가 바뀔 때마다 해당 페이지 게시물 로드
   }, [page]);
+
+  //              effect: fetchLive 호출          //
+  const fetchLive = useLiveStore(state => state.fetchLive);
+  useEffect(() => {
+    fetchLive();
+  }, []);
 
   //       state: 선택된 카테고리 상태       //
   const [selectedCategory, setSelectedCategory] = useState('ALL');
@@ -130,13 +137,9 @@ export default function ShopList({ initialData }: { initialData: Product[] }) {
           mainImageSrc={product.mainImages[0]?.path}
           category={product.extra.category}
           discountRate={product.extra.discountRate}
-          discountPrice={product.extra.discountedPrice}
           recommendedBy={product.extra.recommendedBy}
           key={product._id}
           textPrice="text-base"
-          liveTitle={product.extra.live?.title}
-          liveRate={product.extra.live?.liveDiscountRate}
-          livePrice={product.extra.live?.livePrice}
         />,
       );
 

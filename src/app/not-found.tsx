@@ -5,8 +5,8 @@ import Link from 'next/link';
 
 export default function NotFound() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[#fcdae5]">
-      <span className="relative top-10 flex animate-bounce items-center gap-2 text-[80px] font-extrabold text-white">
+    <div className="flex min-h-screen flex-col items-center justify-center">
+      <span className="relative top-10 flex animate-bounce items-center gap-2 text-[80px] font-extrabold text-black">
         4
         <Image
           src="/clock.png"
@@ -17,7 +17,7 @@ export default function NotFound() {
         />
         4
       </span>
-      <span className="pointer-events-none pb-10 text-3xl font-black text-white opacity-50">
+      <span className="pointer-events-none pb-10 text-3xl font-black text-black opacity-50">
         Ooops!
       </span>
       <p className="mb-5 text-2xl font-bold text-gray-700">

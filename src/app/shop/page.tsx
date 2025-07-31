@@ -5,6 +5,7 @@ import { ShopBanner } from '@/components/features/shop/ShopBanner';
 import { ShopLiveProducts } from '@/components/features/shop/ShopLiveProducts';
 import TabBar from '@/components/layout/tabbar/Tabbar';
 import { fetchAllProducts, fetchProducts } from '@/data/functions/ProductFetch';
+import moment from 'moment';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -13,11 +14,18 @@ export const metadata: Metadata = {
 };
 
 export default async function ShopPage() {
+  const now = moment();
+  const isThisMonth = (dateStr?: string) => {
+    if (!dateStr) return false;
+    const date = moment(dateStr);
+    return date.month() === now.month() && date.year() === now.year();
+  };
+
   const initialData = await fetchProducts(1);
   const liveData = await fetchAllProducts();
-  const initialLiveFiltered = liveData.filter(
-    product => product.extra.isLiveSpecial,
-  );
+  const initialLiveFiltered = liveData
+    .filter(product => product.extra.isLiveSpecial)
+    .filter(product => isThisMonth(product.extra.live?.start));
 
   return (
     <>

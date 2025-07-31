@@ -42,17 +42,6 @@ export default async function ProductPage({
 
   return (
     <CartProvider>
-      {/* <HeaderNav>
-        <HeaderNav.LeftContent>
-          뒤로가기 버튼을 클라이언트 컴포넌트에서 다룸
-          <GoBackButton stroke={'stroke-black'} />
-        </HeaderNav.LeftContent>
-        <HeaderNav.Title>제품상세</HeaderNav.Title>
-        <HeaderNav.RightContent>
-          <CartIcon />
-        </HeaderNav.RightContent>
-      </HeaderNav> */}
-
       <div className={`relative mb-1 aspect-square w-full`}>
         <Image
           fill
@@ -71,8 +60,11 @@ export default async function ProductPage({
           path: detailImage?.path ?? '',
         }}
         discountRate={product.extra.discountRate}
-        discountedPrice={product.extra.discountedPrice}
-        extra={{ recommendedBy: product.extra.recommendedBy }}
+        price={product.price}
+        extra={{
+          recommendedBy: product.extra.recommendedBy,
+          originalPrice: product.extra.originalPrice,
+        }}
       />
 
       <h2 className="p-5 text-[18px] font-semibold">상품정보</h2>
@@ -90,8 +82,14 @@ export default async function ProductPage({
       {/* 하위 클라이언트 컴포넌트로 묶어서 이동 */}
       <CartAction
         price={product.price}
-        options={options} // ProductOption[]
+        options={product.extra.options}
         discountRate={product.extra.discountRate}
+        item={{
+          id: String(product._id),
+          name: product.name,
+          price: product.price,
+          productImg: mainImageUrl,
+        }}
       />
 
       <Tabbar />

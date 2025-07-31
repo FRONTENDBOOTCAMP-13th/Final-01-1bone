@@ -17,12 +17,8 @@ interface ShopProductProps {
   mainImageSrc: string;
   category: string[];
   discountRate: number;
-  discountPrice: number;
   recommendedBy: string;
   textPrice: string;
-  liveTitle: string;
-  liveRate: number;
-  livePrice: number;
 }
 
 //       component: shop main 상품 컴포넌트       //
@@ -33,11 +29,7 @@ export const ShopProduct = ({
   mainImageSrc,
   discountRate,
   recommendedBy,
-  discountPrice,
   textPrice,
-  liveTitle,
-  liveRate,
-  livePrice,
 }: ShopProductProps) => {
   // 카테고리 한글 변환, 배경색, 글자색
   const recommendData: Record<
@@ -52,12 +44,6 @@ export const ShopProduct = ({
   };
 
   const recommendInfo = recommendData[recommendedBy];
-
-  //              effect: fetchLive 호출          //
-  const fetchLive = useLiveStore(state => state.fetchLive);
-  useEffect(() => {
-    fetchLive();
-  }, []);
 
   const currentLive = useLiveStore(state => state.currentLive);
 
@@ -113,10 +99,10 @@ export const ShopProduct = ({
       <p className={`${textPrice} font-semibold`}>
         {discountRate && (
           <span className="sale pointer-events-none mr-1 text-[#FE508B]">
-            {isLive ? liveRate : discountRate}%
+            {discountRate}%
           </span>
         )}
-        {isLive ? livePrice : discountPrice ? discountPrice : price}원
+        {price}원
       </p>
     </Link>
   );

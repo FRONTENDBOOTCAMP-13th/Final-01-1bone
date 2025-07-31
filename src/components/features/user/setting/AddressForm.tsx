@@ -12,12 +12,13 @@ import toast from 'react-hot-toast';
 
 //          interface: 주소 폼 입력 타입 정의          //
 interface FormValues {
-  address: string;
-  detail: string;
+  address?: string;
+  detail?: string;
+  postcode?: string;
 }
 
 //          component: 주소 폼 컴포넌트          //
-export default function AddressForm() {
+export default function AddressForm({ address, detail, postcode }: FormValues) {
   //          state: 주소 입력 폼 오픈 상태          //
   const [isOpen, setIsOpen] = useState(false);
   //          state: 로그인 유저 상태          //
@@ -27,8 +28,9 @@ export default function AddressForm() {
 
   const { register, setValue, handleSubmit } = useForm<FormValues>({
     defaultValues: {
-      address: '',
-      detail: '',
+      address: address ?? '',
+      detail: detail ?? '',
+      postcode: postcode ?? '',
     },
   });
 
@@ -36,27 +38,23 @@ export default function AddressForm() {
 
   const onComplete = (data: Address) => {
     setValue('address', data.address);
+    setValue('postcode', data.zonecode);
   };
 
-  useEffect(() => {
-    if (!currentUser) return;
+  // useEffect(() => {
+  //   if (!currentUser) return;
 
-    const fetchAddress = async () => {
-      if (!currentUser?._id) return;
-      const addressRes = await getUserAttribute(currentUser._id, 'address');
-      const addressDetailRes = await getUserAttribute(
-        currentUser._id,
-        'extra/detail_address',
-      );
+  //   const fetchAddress = async () => {
+  //     if (!currentUser?._id) return;
 
-      if (addressRes.ok && addressDetailRes.ok) {
-        setValue('address', addressRes.item.address);
-        setValue('detail', addressDetailRes.item.extra.detail_address);
-      }
-    };
+  //     if (addressRes.ok && addressDetailRes.ok) {
+  //       setValue('address', addressRes.item.address);
+  //       setValue('detail', addressDetailRes.item.extra.detail_address);
+  //     }
+  //   };
 
-    fetchAddress();
-  }, [currentUser, setValue]);
+  //   fetchAddress();
+  // }, [currentUser, setValue]);
 
   const onSubmit = async (data: FormValues) => {
     if (!currentUser) return;
@@ -68,8 +66,9 @@ export default function AddressForm() {
 
     const formData = new FormData();
     formData.append('accessToken', accessToken);
-    formData.append('address', data.address);
-    formData.append('detail', data.detail);
+    formData.append('address', data.address ?? '');
+    formData.append('postcode', data.postcode ?? '');
+    formData.append('detail', data.detail ?? '');
     if (!currentUser?._id) return;
     const res = await updateUserInfo(currentUser._id, formData);
     if (res.ok === 1) {
@@ -101,13 +100,21 @@ export default function AddressForm() {
           <div>
             <div className="mb-2 flex items-center justify-between">
               <span className="text-sm">주소</span>
-              <Button
-                type="submit"
-                variant="outline"
-                className="cursor-pointer"
-              >
-                저장
-              </Button>
+              <div className="flex items-center gap-3">
+                <input
+                  {...register('postcode')}
+                  className="h-9 w-22 rounded-lg border border-[#e6e6e6] px-4 py-3 text-[#111111] outline-none focus:border-black"
+                  placeholder="우편번호"
+                  readOnly
+                />
+                <Button
+                  type="submit"
+                  variant="outline"
+                  className="cursor-pointer"
+                >
+                  저장
+                </Button>
+              </div>
             </div>
 
             <input
