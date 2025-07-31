@@ -10,6 +10,7 @@ import TokenSync from '@/components/features/auth/TokenSync';
 import Script from 'next/script';
 import AdBannerModal from '@/components/features/user/alarm/AdBannerModal';
 import { ToastProvider } from '@/components/common/ToastProvider';
+import HeroSection from '@/components/layout/heroSection.tsx/HeroSection';
 
 const pretendard = localFont({
   src: '../../public/fonts/PretendardVariable.woff2',
@@ -33,13 +34,16 @@ export default function RootLayout({
       </head>
       <body className={`${pretendard.className}`}>
         <SessionProvider>
-          <TokenSync />
-          <MobileFrame>
-            {children}
-            <AdBannerModal />
-            <ModalProvider />
-            <ToastProvider />
-          </MobileFrame>
+          <div className="flex">
+            <TokenSync />
+            <HeroSection />
+            <MobileFrame>
+              {children}
+              <AdBannerModal />
+              <ModalProvider />
+              <ToastProvider />
+            </MobileFrame>
+          </div>
         </SessionProvider>
       </body>
     </html>

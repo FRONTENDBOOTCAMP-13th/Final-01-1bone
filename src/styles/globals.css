@@ -134,7 +134,7 @@
     display: none; /* Chrome, Safari, Opera */
   }
 
-  @media (min-width: 600px) {
+  @media (max-width: 1279px) {
     .frame-guideline::before,
     .frame-guideline::after {
       content: '';
@@ -154,6 +154,28 @@
     .frame-guideline::after {
       right: 50%;
       transform: translateX(300px);
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .frame-guideline::before,
+    .frame-guideline::after {
+      content: '';
+      display: block;
+      position: fixed;
+      top: 0;
+      width: 1px;
+      height: 100%;
+      background-color: #eaeaea;
+      z-index: 9999;
+    }
+    .frame-guideline::before {
+      left: 50%;
+      transform: translateX(0px);
+    }
+    .frame-guideline::after {
+      left: 50%;
+      transform: translateX(600px);
     }
   }
 

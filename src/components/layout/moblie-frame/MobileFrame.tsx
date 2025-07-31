@@ -5,9 +5,14 @@ import { PropsWithChildren } from 'react';
 export function MobileFrame({ children }: PropsWithChildren) {
   return (
     <div className="frame-guideline relative mx-auto h-screen w-full max-w-[600px]">
-      <Header />
-      {children}
-      <TabBar />
+      <div className="xl:translate-x-[300px]">
+        <Header />
+        {children}
+      </div>
+
+      <div className="fixed bottom-0 w-full xl:translate-x-[300px]">
+        <TabBar />
+      </div>
     </div>
   );
 }
