@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
 
   experimental: {
     serverActions: {
-      bodySizeLimit: '10mb', // 또는 '10mb', '20mb' 등으로 설정
+      bodySizeLimit: '100mb',
     },
   },
   images: {

@@ -16,7 +16,7 @@ export default async function ChracterPage() {
   if (res.ok !== 1) return null;
 
   return (
-    <main className="relative flex h-[calc(100%-56px)] flex-col overflow-hidden bg-[url('/images/etc/character-bg.webp')] bg-cover bg-center pt-12">
+    <main className="relative flex h-[calc(100dvh-56px)] min-h-[calc(100%-56px)] flex-col overflow-hidden bg-[url('/images/etc/character-bg.webp')] bg-cover bg-center pt-12">
       <ChracterPageClient extra={res.item.extra} />
       <ItemSection extra={res.item.extra} />
     </main>

@@ -10,12 +10,14 @@ interface BackButtonProps {
   onClickBack?: () => void;
   className?: string;
   needConfirm?: boolean;
+  label?: string;
 }
 
 export const BackButton = ({
   onClickBack,
   className,
   needConfirm,
+  label,
 }: BackButtonProps) => {
   const router = useRouter();
   const { openModal } = useModalStore();
@@ -23,9 +25,13 @@ export const BackButton = ({
   const handleBackClick = () => {
     if (onClickBack) return onClickBack();
 
-    if (needConfirm) {
+    if (needConfirm && label) {
       openModal(({ onClose }) => (
-        <ConfirmModal onClose={onClose} onConfirm={() => router.back()} />
+        <ConfirmModal
+          onClose={onClose}
+          onConfirm={() => router.back()}
+          label={label}
+        />
       ));
       return;
     }

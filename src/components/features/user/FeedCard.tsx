@@ -28,7 +28,7 @@ export function FeedCard({ images, onClick, href }: Props) {
     >
       {images && (
         <Image
-          src={`https://fesp-api.koyeb.app/market/${firstImage}`}
+          src={`${firstImage}`}
           alt="피드 이미지"
           fill
           sizes="184px"

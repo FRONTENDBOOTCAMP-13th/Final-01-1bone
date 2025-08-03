@@ -1,5 +1,12 @@
 'use server';
-import { ApiRes, Post, PostReply, ApiResPromise, PostList } from '@/types';
+import {
+  ApiRes,
+  Post,
+  PostReply,
+  ApiResPromise,
+  PostList,
+  FileUpload,
+} from '@/types';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { revalidateTag } from 'next/cache';
@@ -77,12 +84,43 @@ export async function createPost(
   formData: FormData,
 ): ApiResPromise<Post> {
   let imageUrls: string[] = [];
+  const attachFiles = formData.getAll('attach') as File[];
+  console.log('attach', attachFiles);
+  const accessToken = formData.get('accessToken');
+
+  console.log('accesToken', accessToken);
 
   // 1단계: 이미지가 있으면 먼저 업로드
-  const imageFile = formData.get('images') as File;
-  if (imageFile && imageFile.size > 0) {
+  // const imageFile = formData.get('images') as File;
+  // if (imageFile && imageFile.size > 0) {
+  //   const fileFormData = new FormData();
+  //   fileFormData.append('attach', imageFile);
+
+  //   try {
+  //     const fileRes = await fetch(`${API_URL}/files`, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Client-Id': CLIENT_ID,
+  //       },
+  //       body: fileFormData,
+  //     });
+
+  //     const fileResult = await fileRes.json();
+
+  //     if (fileResult.ok) {
+  //       imageUrls = [fileResult.item[0].path];
+  //     }
+  //   } catch (error) {
+  //     console.error('파일 업로드 에러:', error);
+  //     return { ok: 0, message: '이미지 업로드에 실패했습니다.' };
+  //   }
+  // }
+
+  if (attachFiles.length > 0) {
     const fileFormData = new FormData();
-    fileFormData.append('attach', imageFile);
+    attachFiles.forEach(file => {
+      fileFormData.append('attach', file);
+    });
 
     try {
       const fileRes = await fetch(`${API_URL}/files`, {
@@ -96,7 +134,7 @@ export async function createPost(
       const fileResult = await fileRes.json();
 
       if (fileResult.ok) {
-        imageUrls = [fileResult.item[0].path];
+        imageUrls = fileResult.item.map((file: FileUpload) => file.path);
       }
     } catch (error) {
       console.error('파일 업로드 에러:', error);
@@ -104,13 +142,17 @@ export async function createPost(
     }
   }
 
+  console.log('업로드된 이미지 url들', imageUrls);
+
   // 2단계: 게시글 등록
   const body = {
     type: formData.get('type'),
     content: formData.get('content'),
-    category: formData.get('category'),
+    tag: formData.get('tag'),
     ...(imageUrls.length > 0 && { image: imageUrls }),
   };
+
+  console.log('피드 등록 바디 데이터', body);
 
   let data: ApiRes<Post>;
 
@@ -120,12 +162,13 @@ export async function createPost(
       headers: {
         'Content-Type': 'application/json',
         'Client-Id': CLIENT_ID,
-        Authorization: `Bearer ${formData.get('accessToken')}`,
+        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify(body),
     });
 
     data = await res.json();
+    console.log('피드등록 완료 데이터', data);
   } catch (error) {
     console.error(error);
     return { ok: 0, message: '일시적인 네트워크 문제로 등록에 실패했습니다.' };
@@ -147,10 +190,49 @@ export async function createPost(
 export async function updatePost(
   state: ApiRes<Post> | null,
   formData: FormData,
+  _id: string,
 ): ApiResPromise<Post> {
-  const _id = formData.get('_id') as string;
-  const content = formData.get('content') as string;
-  const accessToken = formData.get('accessToken') as string;
+  let imageUrls: string[] = [];
+  const attachFiles = formData.getAll('attach') as File[];
+  console.log('attach', attachFiles);
+  const accessToken = formData.get('accessToken');
+
+  console.log('accesToken', accessToken);
+
+  if (attachFiles.length > 0) {
+    const fileFormData = new FormData();
+    attachFiles.forEach(file => {
+      fileFormData.append('attach', file);
+    });
+
+    try {
+      const fileRes = await fetch(`${API_URL}/files`, {
+        method: 'POST',
+        headers: {
+          'Client-Id': CLIENT_ID,
+        },
+        body: fileFormData,
+      });
+
+      const fileResult = await fileRes.json();
+
+      if (fileResult.ok) {
+        imageUrls = fileResult.item.map((file: FileUpload) => file.path);
+      }
+    } catch (error) {
+      console.error('파일 업로드 에러:', error);
+      return { ok: 0, message: '이미지 업로드에 실패했습니다.' };
+    }
+  }
+
+  console.log('업로드된 이미지 url들', imageUrls);
+
+  const body = {
+    type: formData.get('type'),
+    content: formData.get('content'),
+    tag: formData.get('tag'),
+    ...(imageUrls.length > 0 && { image: imageUrls }),
+  };
 
   let data: ApiRes<Post>;
 
@@ -162,7 +244,7 @@ export async function updatePost(
         'Client-Id': CLIENT_ID,
         Authorization: `Bearer ${accessToken}`,
       },
-      body: JSON.stringify({ content }),
+      body: JSON.stringify(body),
     });
 
     data = await res.json();
@@ -172,8 +254,9 @@ export async function updatePost(
   }
 
   if (data.ok) {
-    revalidateTag('posts');
-    revalidateTag(`posts/${_id}`);
+    revalidatePath(`/${body.type}`); // 목록 페이지 캐시 갱신
+    // 메인페이지로 이동 (상세페이지 대신)
+    redirect(`/${body.type}`); // /community로 이동
   }
 
   return data;

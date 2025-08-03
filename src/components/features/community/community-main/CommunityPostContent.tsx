@@ -62,8 +62,8 @@ export default function CommunityPostContent({
   }
 
   return (
-    <div className="min-h-12 px-5 py-3">
-      <p className="text-sm leading-5 font-normal text-black">
+    <div className="min-h-12">
+      <p className="text-sm leading-5 font-normal whitespace-pre-wrap text-black">
         {displayText}
         {isLongText && (
           <button

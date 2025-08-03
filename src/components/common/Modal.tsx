@@ -7,6 +7,12 @@ interface ModalProps extends PropsWithChildren {
 }
 
 export default function Modal({ children, onClose }: ModalProps) {
+  const target =
+    typeof window !== 'undefined'
+      ? document.getElementById('modal-root')
+      : null;
+
+  if (!target) return null;
   return createPortal(
     <div
       className="fixed inset-0 z-50 h-full w-full"
@@ -15,7 +21,7 @@ export default function Modal({ children, onClose }: ModalProps) {
     >
       {children}
     </div>,
-    document.body,
+    target,
   );
 }
 
@@ -40,7 +46,7 @@ export function ModalPanel({
 }>) {
   return (
     <motion.div
-      className="fixed inset-0 flex items-center justify-center"
+      className="absolute inset-0 flex items-center justify-center"
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.8 }}
@@ -57,7 +63,7 @@ export function ModalPanel({
           }
         }}
         className={cn(
-          'relative rounded-2xl border border-[#D9D9D9] bg-white',
+          'relative max-w-[600px] rounded-2xl border border-[#D9D9D9] bg-white',
           className,
         )}
       >

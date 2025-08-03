@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import { MoreHorizontal } from 'lucide-react';
 import { getUserImageUrl } from '@/utils';
@@ -15,15 +17,14 @@ export default function CommunityPostHeader({
   onOptionsClick,
 }: CommunityPostHeaderProps) {
   return (
-    <div className="flex h-[60px] items-center justify-between px-5">
-      <div className="flex items-center gap-2">
+    <div className="mb-3 flex items-center justify-between pt-2 pr-4">
+      <div className="flex items-center gap-3">
         {/* 프로필 이미지 */}
-        <div className="h-8 w-8">
+        <div className="relative h-8 w-8">
           <Image
             src={getUserImageUrl(post.user.image)}
             alt={`${post.user.name} 프로필`}
-            width={32}
-            height={32}
+            fill
             className="rounded-full object-cover"
           />
         </div>
@@ -43,7 +44,7 @@ export default function CommunityPostHeader({
           onClick={onOptionsClick}
           className="rounded-full p-1 transition-colors hover:bg-gray-100"
         >
-          <MoreHorizontal size={20} className="text-gray-400" />
+          <MoreHorizontal size={22} className="text-gray-400" />
         </button>
       )}
     </div>

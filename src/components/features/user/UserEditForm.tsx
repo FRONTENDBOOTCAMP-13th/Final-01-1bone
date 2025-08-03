@@ -29,7 +29,7 @@ interface FormValues {
 //          component: 프로필 수정 폼 컴포넌트          //
 export function UserEditForm({ user }: Props) {
   //          state: 프로필 이미지 업로드 요소 참조 상태          //
-  const fileInputRef = useRef<HTMLInputElement>(null); // 프로필 이미지 업로드 input 참조
+  const fileInputRef = useRef<HTMLInputElement>(null);
   //          state: 액세스토큰 상태          //
   const accessToken = useAuthStore(state => state.accessToken); // Zustand에서 accessToken 가져옴
   //          state: 프로필 이미지 미리보기 상태          //
@@ -254,7 +254,10 @@ export function UserEditForm({ user }: Props) {
         </div>
 
         {/* 제출 버튼 */}
-        <button className="mb-6 w-full cursor-pointer rounded-lg bg-[#4a4a4a] py-3 text-sm text-white">
+        <button
+          type="submit"
+          className="mb-6 w-full cursor-pointer rounded-lg bg-[#4a4a4a] py-3 text-sm text-white"
+        >
           수정하기
         </button>
       </form>

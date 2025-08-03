@@ -51,7 +51,11 @@ export default function Header() {
   const isFeedPage = useMemo(
     () => /^\/community\/\d+/.test(pathname),
     [pathname],
-  ); // 제품 상세 페이지
+  ); // 피드 페이지
+  const isCommunityUpdatePage = useMemo(
+    () => /^\/community\/update\/\d+/.test(pathname),
+    [pathname],
+  );
 
   //          state: 고정 경로 페이지 상태          //
   const isLoginPage = pathname === '/login'; // 로그인 페이지
@@ -95,7 +99,8 @@ export default function Header() {
     isHobbyPage ||
     isRandomHobbyPage ||
     isBookmarkPage; // 일반 뒤로가기 버튼 노출 조건
-  const showConfirmBackButton = isEditPage || isCommunityWritePage; // 뒤로가기 시 확인이 필요한 페이지
+  const showConfirmBackButton =
+    isEditPage || isCommunityWritePage || isCommunityUpdatePage; // 뒤로가기 시 확인이 필요한 페이지
   const showCartIcon = isShopPage || isProductPage; // 쇼핑카트 아이콘 노출 조건
 
   //          state: 장바구니 아이콘의 상품 개수 가져오기            //
@@ -114,6 +119,13 @@ export default function Header() {
     };
     fetchAndSetCart();
   }, [setCartItems]);
+
+  const confirmBackLabel = useMemo(() => {
+    if (isCommunityWritePage) return '피드 작성';
+    if (isEditPage) return '프로필 수정';
+    if (isCommunityUpdatePage) return '피드 수정';
+    return '';
+  }, [isCommunityWritePage, isEditPage, isCommunityUpdatePage]);
 
   //          render: 로그인 페이지에서는 헤더 숨김 처리          //
   if (isLoginPage) return null;
@@ -157,24 +169,25 @@ export default function Header() {
                 className={cn(isLivePage && 'text-white')}
               />
             )}
-            {showConfirmBackButton && <BackButton needConfirm />}
+            {showConfirmBackButton && (
+              <BackButton needConfirm label={confirmBackLabel} />
+            )}
           </div>
 
           {/* 가운데 타이틀 영역 */}
           <h3
             className={cn(
-              'flex w-full items-center justify-center text-lg font-medium',
+              'flex w-full items-center justify-center text-lg font-medium text-[#4A4A4A]',
               isLivePage && 'text-white',
             )}
           >
-            {isCommunityPage && '커뮤니티'}
             {isCommunityWritePage && '피드등록'}
             {isSettingPage && '설정'}
             {isEditPage && '프로필 수정'}
             {isCartPage && '장바구니'}
             {isProductPage && '제품 상세'}
             {isBookmarkPage && '게시물 북마크'}
-            {isFeedPage && '피드보기'}
+            {isFeedPage && '피드상세'}
             {isLivePage && '라이브'}
             {isHobbyPage && '취미 선택'}
             {isRandomHobbyPage && '취향 뽑기'}
@@ -182,6 +195,7 @@ export default function Header() {
             {isPolicyPage && '개인정보 처리방침'}
             {isNoticePage && '공지사항'}
             {isContactPage && '고객센터'}
+            {isCommunityUpdatePage && '피드수정'}
           </h3>
 
           {/* 오른쪽 아이콘 영역 */}
@@ -213,8 +227,12 @@ export default function Header() {
               <Siren />
             )}
             {isCommunityPage && (
-              <Link href="/community/write">
-                <Pencil size={24} />
+              <Link
+                href="/community/write"
+                className="flex items-center gap-2 rounded-md px-2 py-2"
+              >
+                <Pencil size={20} className="text-[#4A4A4A]" />
+                {/* <span className="text-sm text-[#4A4A4A]">피드 작성</span> */}
               </Link>
             )}
             {isCharacterPage && (
@@ -229,6 +247,7 @@ export default function Header() {
                 />
               </>
             )}
+
             {isLivePage && <LiveCalendarBtn />}
           </div>
         </div>

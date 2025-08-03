@@ -3,12 +3,7 @@ import WriteForm from '@/components/features/community/community-create/FeedWrit
 
 export default async function WritePage() {
   return (
-    <div className="min-h-screen">
-      {/* <div className="pt-5">
-        <CommunityHeader title="피드등록" />
-        <hr className="mt-2" />
-      </div> */}
-
+    <div className="flex min-h-[calc(100%-48px)] flex-1 flex-col p-4">
       <WriteForm />
     </div>
   );

@@ -35,8 +35,9 @@ export interface Post {
   _id: number; // 게시물 ID
   type: string; // 게시판 타입 (community, notice 등)
   title: string; // 제목
+  tag: string;
   content: string; // 내용
-  image?: string; // 이미지
+  image: string[] | string; // 이미지
   user: Pick<User, '_id' | 'name' | 'image'>; // 작성자 (일부 정보만)
   views: number; // 조회수
   repliesCount: number; // 댓글 수

@@ -7,7 +7,7 @@ export default function ServiceLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="flex min-h-[calc(100%-56px-48px)] w-full flex-col">
+    <div className="flex min-h-[calc(100%-56px-48px)] w-full flex-1 flex-col">
       {children}
       <div className="flex flex-1 flex-col gap-3 bg-gray-50 px-8 py-10">
         <ul className="flex items-center gap-2">

@@ -1,5 +1,8 @@
 import { getPost } from '@/data/actions/post';
 import CommunityMain from '@/components/features/community/community-main/CommunityMain';
+import CommunityFeed from '@/components/features/community/community-main/CommunityFeed';
+import CommunityComment from '@/components/features/community/community-comment/CommunityComment';
+import { fetchReplies } from '@/data/functions/CommunityFetch';
 
 interface CommunityDetailPageProps {
   params: Promise<{ id: string }>;
@@ -13,6 +16,10 @@ export default async function CommunityDetailPage({
 
   // 게시글 데이터 조회
   const res = await getPost(postId);
+
+  const commentRes = await fetchReplies(postId);
+
+  console.log('commentres', commentRes);
 
   if (!res.ok || !res.item) {
     return (
@@ -35,10 +42,13 @@ export default async function CommunityDetailPage({
     );
   }
 
+  if (commentRes.ok !== 1) return null;
+
   // CommunityMain 컴포넌트 재사용
   return (
-    <div className="min-h-screen bg-white">
-      <CommunityMain post={res.item} />
+    <div className="flex-1 bg-white">
+      <CommunityFeed post={res.item} page="detail" />
+      <CommunityComment commentList={commentRes.item} post_id={id} />
     </div>
   );
 }

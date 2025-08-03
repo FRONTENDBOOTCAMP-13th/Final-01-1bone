@@ -57,15 +57,18 @@ export async function fetchPost(_id: number): ApiResPromise<Post> {
  */
 export async function fetchReplies(_id: number): ApiResPromise<PostReply[]> {
   try {
-    const res = await fetch(`${API_URL}/posts/${_id}/replies`, {
-      headers: {
-        'Client-Id': CLIENT_ID,
+    const res = await fetch(
+      `${API_URL}/posts/${_id}/replies?sort={"createdAt": -1}`,
+      {
+        headers: {
+          'Client-Id': CLIENT_ID,
+        },
+        cache: 'no-store',
+        next: {
+          tags: [`posts/${_id}/replies`],
+        },
       },
-      cache: 'no-store',
-      next: {
-        tags: [`posts/${_id}/replies`],
-      },
-    });
+    );
     return res.json();
   } catch (error) {
     console.error(error);

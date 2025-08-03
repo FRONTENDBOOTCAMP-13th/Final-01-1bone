@@ -1,29 +1,20 @@
 'use client';
 
-import {
-  ChangeEvent,
-  useActionState,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
-import { createPost } from '@/data/actions/post';
-import { useAuthStore } from '@/store/auth.store'; // 영찬님 로그인
-import FeedCategorySelect from './FeedCategorySelect';
-import FeedContentInput from './FeedContentInput';
-import FeedImageUpload from './FeedImageUpload';
-import FeedSubmitButton from './FeedSubmitButton';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { createPost, updatePost } from '@/data/actions/post';
+import { useAuthStore } from '@/store/auth.store';
 import { useForm } from 'react-hook-form';
 import Image from 'next/image';
-import { Button } from '@/components/ui/button';
 import { useModalStore } from '@/store/modal.store';
 import { useRouter } from 'next/navigation';
 import { Separator } from '@/components/ui/separator';
 import { Plus, X } from 'lucide-react';
 import { FEED_CATEGORIES } from '@/constant/category';
 import { cn } from '@/lib/utils';
+import { Post } from '@/types';
+import { convertUrlsToFile } from '@/utils';
 
-//          interface: 피드 작성 폼 입력 타입 정의          //
+//          interface: 피드 수정 폼 입력 타입 정의          //
 interface FormValues {
   attach: File[];
   content: string;
@@ -32,12 +23,17 @@ interface FormValues {
   type: string;
 }
 
-export default function FeedWriteForm() {
+interface Props {
+  post: Post;
+}
+
+export default function FeedUpdateForm({ post }: Props) {
   //          function: 오픈 모달 함수          //
   const openModal = useModalStore(state => state.openModal); // 성공 모달 열기용
   //          function: 라우터 함수          //
   const router = useRouter(); // 라우터 이동용
 
+  console.log('게시물 본문', post.content);
   const MAX_FILE_SIZE = 20 * 1024 * 1024;
 
   //          state: 액세스토큰 상태          //
@@ -45,8 +41,8 @@ export default function FeedWriteForm() {
   //          state: react-hook-form(닉네임, 소개, 이미지, accessToken)          //
   const { register, handleSubmit, setValue, watch } = useForm<FormValues>({
     defaultValues: {
-      content: '',
-      tag: '',
+      content: post.content ?? '',
+      tag: post.tag ?? '',
       attach: [],
       accessToken: '',
       type: 'community',
@@ -142,12 +138,12 @@ export default function FeedWriteForm() {
           formData.append('attach', file);
         });
       }
-      const res = await createPost(null, formData);
+      const res = await updatePost(null, formData, post._id.toString());
 
-      console.log('피드 등록 결과', res);
+      console.log('피드 수정 결과', res);
 
       if (res.ok === 1) {
-        console.log('피드 업로드 됨');
+        console.log('피드 수정 됨');
       }
     } finally {
       setIsLoading(false);
@@ -155,6 +151,28 @@ export default function FeedWriteForm() {
   };
 
   const watchedTag = watch('tag');
+
+  useEffect(() => {
+    if (contentRef.current) {
+      contentRef.current.style.height = 'auto';
+      contentRef.current.style.height = `${contentRef.current.scrollHeight}px`;
+    }
+  }, []);
+
+  //          effect: 이미지 변경 시 실행할 함수          //
+  useEffect(() => {
+    const convertImagesToFiles = async () => {
+      if (!post.image || post.image.length === 0) return;
+      console.log('이미지 파일 뭐시기 저시기');
+      const imageUrls = post.image as string[];
+      const files = await convertUrlsToFile(imageUrls);
+      setValue('attach', files);
+      setImageFileList(files);
+      setImageUrls(imageUrls);
+    };
+
+    convertImagesToFiles();
+  }, [post.image, setValue]);
 
   //          effect: accessToken 변경 시 실행할 함수          //
   useEffect(() => {
@@ -243,7 +261,6 @@ export default function FeedWriteForm() {
               }}
               name="feed-content"
               id="feed-content"
-              value={content}
               className="min-h-32 w-full resize-none outline-none"
               placeholder="본문"
               onChange={onContentChangeHandler}
@@ -283,14 +300,14 @@ export default function FeedWriteForm() {
           className="my-4 mb-4 flex h-11 w-full cursor-pointer items-center justify-center rounded-full bg-[#4A4A4A] py-3 text-sm font-medium text-white"
           onClick={onUploadButtonClickHandler}
         >
-          {'등록하기'}
+          {'수정하기'}
         </button>
       ) : (
         <button
           type="button"
           className="cursor-not-allow my-4 flex w-full items-center justify-center rounded-full bg-black/40 py-3 text-sm font-medium text-white"
         >
-          {'등록하기'}
+          {'수정하기'}
         </button>
       )}
       {isLoading && (

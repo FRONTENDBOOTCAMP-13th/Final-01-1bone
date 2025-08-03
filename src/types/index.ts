@@ -13,3 +13,4 @@ export * from './post';
 export * from './bookmark';
 
 export * from './item';
+export * from './comment';

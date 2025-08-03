@@ -15,24 +15,6 @@ export default async function UserEditPage() {
   if (res.ok !== 1) return null;
 
   const user = res.item;
-  // const currentUser = useAuthStore(state => state.user);
-  // const accessToken = useAuthStore(state => state.accessToken);
-  // const [user, setUser] = useState<User | null>(null);
-
-  // useEffect(() => {
-  //   const fetchUserInfo = async () => {
-  //     if (!accessToken) return null;
-
-  //     if (!currentUser?._id) return;
-  //     const res = await getUserInfo(currentUser._id);
-  //     if (res.ok === 1 && res.item) {
-  //       setUser(res.item);
-  //     }
-  //   };
-
-  //   fetchUserInfo();
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [currentUser]);
 
   if (!user) return null;
 

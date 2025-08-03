@@ -173,22 +173,13 @@ export default function CommunityMain({ post }: CommunityMainProps) {
 
   return (
     <>
-      <div className="w-full">
+      {/* <div className="h-14"></div> */}
+      <div className="w-full pl-5">
         {/* 상단 프로필 영역 */}
         <CommunityPostHeader
           post={post}
           isOwner={isOwner}
           onOptionsClick={handlePostOptions}
-        />
-
-        {/* 중간 - 피드 이미지 */}
-        <CommunityPostImage post={post} />
-
-        {/* 아이콘 영역 (댓글, 공유, 북마크) */}
-        <CommunityPostActions
-          postId={post._id.toString()}
-          onCommentClick={handleComment}
-          onShareClick={handleShareToKakao}
         />
 
         {/* 하단 텍스트 영역 */}
@@ -199,6 +190,15 @@ export default function CommunityMain({ post }: CommunityMainProps) {
           onEditContentChange={setEditContent}
           onEditSubmit={handleEditSubmit}
           onEditCancel={handleEditCancel}
+        />
+        {/* 중간 - 피드 이미지 */}
+        <CommunityPostImage post={post} />
+
+        {/* 아이콘 영역 (댓글, 공유, 북마크) */}
+        <CommunityPostActions
+          postId={post._id.toString()}
+          onCommentClick={handleComment}
+          onShareClick={handleShareToKakao}
         />
 
         {/* 하단 보더라인 */}

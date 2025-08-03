@@ -21,7 +21,7 @@ export default function FeedCategorySelect() {
   };
 
   return (
-    <div className="w-full pl-5">
+    <div className="w-full">
       {/* 숨겨진 input - FormData에서 읽을 값 */}
       <input type="hidden" name="category" value={selectedCategory} />
 
