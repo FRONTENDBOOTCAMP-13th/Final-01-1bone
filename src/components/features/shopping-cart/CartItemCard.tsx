@@ -14,9 +14,11 @@ export interface CardItemCardProps {
   onQuantityChange?: (id: number, quantity: number) => void;
   onRemove?: (id: number) => void;
   onCheck?: (id: number, checked: boolean) => void;
+  cartId: number;
 }
 
 export function CartItemCard({
+  cartId,
   id,
   path,
   name,
@@ -52,8 +54,6 @@ export function CartItemCard({
   const handleRemove = () => {
     onRemove?.(id);
   };
-
-  console.log('name', name);
 
   return (
     <>

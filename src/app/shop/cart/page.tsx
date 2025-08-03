@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePurchaseStore } from '@/store/order.store';
+import { useRouter } from 'next/navigation';
 
 export default function CartPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -21,6 +23,7 @@ export default function CartPage() {
   const [ispaymentSheetOpen, setIsPaymentSheetOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const loadCartItems = async () => {
@@ -29,15 +32,23 @@ export default function CartPage() {
         const data = await fetchCartList(1, 10);
         setCartItems(
           data.item.map(item => ({
+            ...item,
             product: {
               _id: item.product._id,
               image: item.product.image ?? [],
               name: item.product.name,
+              path: item.product.image.path,
               price: item.product.price,
+              quantity: item.product.quantity,
+              size: item.product.size ?? '',
+              color: item.product.color ?? '',
+              extra: item.product.extra ?? {
+                originalPrice: item.product.price,
+              },
             },
-            quantity: item.quantity, // quantity를 직접 추가
             isChecked: false,
             cartId: item._id,
+            quantity: item.quantity,
           })),
         );
       } catch (err) {
@@ -95,13 +106,30 @@ export default function CartPage() {
     setIsPaymentSheetOpen(true);
   };
 
-  const handleClosePaymentSheet = () => {
-    setIsPaymentSheetOpen(false);
-  };
+  // ------------------- 충돌
+  //  try {
+  // API call to delete selected items
+  //    await fetchDeleteAllCarts(selectedItems); // API 호출
 
-  const handlePayment = () => {
-    alert('결제가 완료되었습니다.');
-    setIsPaymentSheetOpen(false);
+  const handelAddBuy = () => {
+    const selectedItems = cartItems.filter(item => item.isChecked);
+
+    const purchaseData = selectedItems.map(item => ({
+      id: item.product._id.toString(),
+      name: item.product.name,
+      originalPrice: item.product.extra.originalPrice,
+      price: item.product.price,
+      quantity: item.quantity,
+      size: item.product.size,
+      color: item.product.color,
+      productImg: item.product.image.path || '',
+    }));
+
+    console.log('purchaseData', purchaseData);
+
+    // 구매 데이터 저장 및 페이지 이동
+    usePurchaseStore.getState().setPurchaseData(purchaseData);
+    router.push(`/shop/purchase`);
   };
 
   return (
@@ -191,104 +219,11 @@ export default function CartPage() {
       <div className="relative top-3 text-center">
         <button
           className="h-[3.5rem] w-[21.875rem] cursor-pointer rounded-md bg-[#FE508B] text-xl font-semibold text-white hover:bg-[#e6457b]"
-          onClick={handleOpenPaymentSheet}
+          onClick={handelAddBuy}
         >
           결제하기
         </button>
       </div>
-
-      {ispaymentSheetOpen && (
-        <div className="fixed inset-0 flex items-end">
-          <div className="mx-auto w-full max-w-[600px] rounded-t-3xl bg-white">
-            {/* 바텀시트 헤더 */}
-            <div className="flex items-center justify-between rounded-t-2xl border-t-2 px-6 py-6">
-              <h2 className="text-lg leading-6 font-semibold">결제하기</h2>
-              <button onClick={handleClosePaymentSheet} className="p-1">
-                <X size={18} />
-              </button>
-            </div>
-            <hr />
-
-            <div className="max-h-[60vh] px-6 py-4">
-              {/* 배송지 */}
-              <div className="mb-6">
-                <h3 className="mb-3.5 text-lg leading-6 font-semibold">
-                  배송지
-                </h3>
-                <div className="flex items-start">
-                  <MapPin />
-                  <div className="flex-1">
-                    <p className="pl-2.5 font-semibold">홍길동</p>
-                    <p className="mt-1 pl-2.5 text-sm text-[#4B5563]">
-                      서울특별시 강남구 테헤란로 123
-                    </p>
-                    <p className="pl-2.5 text-sm text-[#4B5563]">
-                      삼성아파트 111호 1001호
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <hr className="-mx-6" />
-
-              {/* 결제수단 */}
-              <div className="mt-4">
-                <h3 className="mb-4 text-lg font-bold">결제수단</h3>
-                <div className="space-y-3">
-                  {/* 신용카드 */}
-                  <label className="flex items-center p-3">
-                    <input
-                      type="radio"
-                      name="payment"
-                      className="mr-3 h-5 w-5"
-                      defaultChecked
-                    />
-                    <div className="flex items-center">
-                      <CreditCard />
-                      <span className="pl-2.5">신용카드</span>
-                    </div>
-                  </label>
-
-                  {/* 무통장입금 */}
-                  <label className="flex items-center p-3">
-                    <input
-                      type="radio"
-                      name="payment"
-                      className="mr-3 h-5 w-5"
-                    />
-                    <div className="flex items-center">
-                      <Banknote />
-                      <span className="pl-2.5">무통장입금</span>
-                    </div>
-                  </label>
-
-                  {/* 간편결제 */}
-                  <label className="flex items-center p-3">
-                    <input
-                      type="radio"
-                      name="payment"
-                      className="mr-3 h-5 w-5"
-                    />
-                    <div className="flex items-center">
-                      <WalletCards />
-                      <span className="pl-2.5">간편결제</span>
-                    </div>
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            {/* 결제 버튼 */}
-            <div className="px-4 py-3 text-center">
-              <button
-                className="h-[3.5rem] w-[21.875rem] cursor-pointer rounded-md bg-[#FE508B] text-xl font-semibold text-white hover:bg-[#e6457b]"
-                onClick={handlePayment}
-              >
-                결제하기
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
