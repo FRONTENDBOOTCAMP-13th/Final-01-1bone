@@ -1,14 +1,21 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, ReactNode, useEffect } from 'react';
 import { Minus, Plus, X } from 'lucide-react';
 import Image from 'next/image';
+import { useCartStore } from '@/store/cartStore';
+import {
+  fetchCartList,
+  deleteCartItem,
+  updateCartItemQuantity,
+} from '@/data/functions/CartFetch.client';
+import { useAuthStore } from '@/store/auth.store';
 
 // CartContext 타입 정의
 interface CartContextType {
   cartItems: any[];
-  setCartItems: (items: any[]) => void;
   cartCount: number;
+  setCartItems: (items: any[]) => void;
 }
 
 // CartContext 생성
@@ -25,14 +32,32 @@ export const useCart = () => {
 
 // CartProvider 컴포넌트 정의
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [cartItems, setCartItems] = useState<any[]>([]);
+  const { cartItems, setCartItems } = useCartStore();
+  const accessToken = useAuthStore.getState().accessToken;
+
+  useEffect(() => {
+    const fetchCartItems = async () => {
+      try {
+        const data = await fetchCartList();
+        setCartItems(data.item);
+      } catch (error) {
+        console.error('장바구니 불러오는 중 오류 발생:', error);
+      }
+    };
+
+    if (accessToken) {
+      fetchCartItems();
+    }
+  }, [accessToken, setCartItems]);
 
   return (
     <CartContext.Provider
       value={{
-        cartItems,
+        // cartItems가 undefined일 경우 빈 배열로 설정
+        cartItems: cartItems || [],
+        // cartItems가 undefined일 경우 0으로 설정
+        cartCount: cartItems?.length || 0,
         setCartItems,
-        cartCount: cartItems.length,
       }}
     >
       {children}
@@ -41,16 +66,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 };
 
 // CartItemCardProps 타입 정의
-export interface CardItemCardProps {
+export interface CartItemCardProps {
   id: number;
   path: string;
   name: string;
   price: number;
   quantity: number;
   isChecked?: boolean;
-  onQuantityChange?: (id: number, quantity: number) => void;
-  onRemove?: (id: number) => void;
-  onCheck?: (id: number, checked: boolean) => void;
 }
 
 // CartItemCard 컴포넌트 정의
@@ -61,46 +83,34 @@ export function CartItemCard({
   price,
   quantity,
   isChecked = false,
-  onQuantityChange,
-  onRemove,
-  onCheck,
-}: CardItemCardProps) {
-  const [localQuantity, setLocalQuantity] = useState(quantity);
+}: CartItemCardProps) {
+  const { removeCartItem, updateCartItemQuantity } = useCartStore();
 
-  const handleCheckedChange = () => {
-    onCheck?.(id, !isChecked);
-  };
-
-  const handleUp = () => {
-    if (localQuantity < 99) {
-      const newQuantity = localQuantity + 1;
-      setLocalQuantity(newQuantity);
-      onQuantityChange?.(id, newQuantity);
+  const handleRemove = async () => {
+    try {
+      await deleteCartItem(id);
+      removeCartItem(id);
+    } catch (error) {
+      console.error('삭제 중 오류 발생:', error);
     }
   };
 
-  const handleDown = () => {
-    if (localQuantity > 1) {
-      const newQuantity = localQuantity - 1;
-      setLocalQuantity(newQuantity);
-      onQuantityChange?.(id, newQuantity);
+  const handleQuantityChange = async (newQuantity: number) => {
+    try {
+      await updateCartItemQuantity(id, newQuantity);
+      updateCartItemQuantity(id, newQuantity);
+    } catch (error) {
+      console.error('수량 변경 중 오류 발생:', error);
     }
   };
-
-  const handleRemove = () => {
-    onRemove?.(id);
-  };
-
-  console.log('name', name);
 
   return (
     <>
       <div className="relative mx-auto h-[6.5rem] w-[21.875rem]">
         {/* 체크박스 */}
-        <div className="mt-1" onClick={handleCheckedChange}>
+        <div className="mt-1">
           <button
             className="cursor-pointer"
-            onClick={handleCheckedChange}
             aria-label={isChecked ? '상품 선택 해제' : '상품 선택'}
           >
             {isChecked ? (
@@ -140,24 +150,21 @@ export function CartItemCard({
           <p>{price.toLocaleString()}원</p>
         </div>
 
-        {/* 수량 변경 */}
-        <div className="absolute top-14 left-34">
+        {/* 수량 조절 */}
+        <div className="absolute bottom-2 left-34 flex items-center">
           <button
-            className="relative bottom-1 cursor-pointer"
-            onClick={handleDown}
+            className="cursor-pointer"
+            onClick={() => handleQuantityChange(quantity - 1)}
+            disabled={quantity <= 1}
           >
-            <div className="flex size-7 items-center justify-center rounded-full border border-[#CECECE]">
-              <Minus size={20} />
-            </div>
+            <Minus size={18} />
           </button>
-          <span className="relative bottom-2 px-6">{localQuantity}</span>
+          <span className="mx-2">{quantity}</span>
           <button
-            className="relative bottom-1 cursor-pointer"
-            onClick={handleUp}
+            className="cursor-pointer"
+            onClick={() => handleQuantityChange(quantity + 1)}
           >
-            <div className="flex size-7 items-center justify-center rounded-full border border-[#CECECE]">
-              <Plus size={20} />
-            </div>
+            <Plus size={18} />
           </button>
         </div>
 

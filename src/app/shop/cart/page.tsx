@@ -4,53 +4,34 @@ import { useEffect, useState } from 'react';
 import { fetchCartList } from '@/data/functions/CartFetch.client';
 import { CartItem } from '@/types/cart';
 import { CartItemCard } from '@/components/features/shopping-cart/CartItemCard';
-import {
-  Banknote,
-  ChevronLeft,
-  CreditCard,
-  MapPin,
-  WalletCards,
-  X,
-} from 'lucide-react';
+import { ChevronLeft, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePurchaseStore } from '@/store/order.store';
 import { useRouter } from 'next/navigation';
+import { useCartStore } from '@/store/cartStore';
+import { fetchDeleteAllCarts } from '@/data/functions/CartFetch.client';
 
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [isAllChecked, setIsAllChecked] = useState(false);
-  const [ispaymentSheetOpen, setIsPaymentSheetOpen] = useState(false);
+  const router = useRouter();
+  const {
+    cartItems,
+    selectedCartIds,
+    selectAllCartItems,
+    deselectAllCartItems,
+    removeCartItem,
+    setCartItems,
+  } = useCartStore();
+
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
 
   useEffect(() => {
     const loadCartItems = async () => {
       try {
         setIsLoading(true);
         const data = await fetchCartList(1, 10);
-        setCartItems(
-          data.item.map(item => ({
-            ...item,
-            product: {
-              _id: item.product._id,
-              image: item.product.image ?? [],
-              name: item.product.name,
-              path: item.product.image.path,
-              price: item.product.price,
-              quantity: item.product.quantity,
-              size: item.product.size ?? '',
-              color: item.product.color ?? '',
-              extra: item.product.extra ?? {
-                originalPrice: item.product.price,
-              },
-            },
-            isChecked: false,
-            cartId: item._id,
-            quantity: item.quantity,
-          })),
-        );
+        setCartItems(data.products);
       } catch (err) {
         console.error('장바구니 데이터를 가져오는 중 오류 발생:', err);
         setError('장바구니 데이터를 불러오는 데 실패했습니다.');
@@ -60,7 +41,7 @@ export default function CartPage() {
     };
 
     loadCartItems();
-  }, []);
+  }, [setCartItems]);
 
   if (isLoading) return <p className="py-10 text-center">로딩 중...</p>;
   if (error) return <p className="py-10 text-center text-red-500">{error}</p>;
@@ -68,61 +49,39 @@ export default function CartPage() {
     return <p className="py-10 text-center">장바구니가 비어 있습니다.</p>;
   }
 
-  const handleAllSelect = () => {
-    setIsAllChecked(!isAllChecked);
-    setCartItems(prev =>
-      prev.map(item => ({
-        ...item,
-        isChecked: !isAllChecked,
-      })),
-    );
-  };
+  const handleSelectedRemove = async () => {
+    try {
+      if (selectedCartIds.length === 0) {
+        alert('삭제할 항목을 선택하세요.');
+        return;
+      }
 
-  const handleItemCheck = (id: number, checked: boolean) => {
-    setCartItems(prev => {
-      const updatedItems = prev.map(item =>
-        item.product._id === id ? { ...item, isChecked: checked } : item,
-      );
+      // API 호출로 선택된 항목 삭제
+      await fetchDeleteAllCarts(selectedCartIds);
 
-      const allchecked = updatedItems.every(item => item.isChecked);
-      setIsAllChecked(allchecked);
-      return updatedItems;
-    });
-  };
+      // Zustand 상태에서 삭제된 항목 제거
+      selectedCartIds.forEach(id => removeCartItem(id));
 
-  const handleSelectedRemove = () => {
-    const selectedItems = cartItems.filter(item => item.isChecked);
-
-    if (selectedItems.length === 0) {
-      alert('삭제할 상품을 선택해주세요.');
-      return;
-    } else {
-      setCartItems(prev => prev.filter(item => !item.isChecked));
-      setIsAllChecked(false);
+      alert('선택된 항목이 삭제되었습니다.');
+    } catch (error) {
+      console.error('선택 삭제 중 오류 발생:', error);
+      alert('선택 삭제에 실패했습니다.');
     }
   };
 
-  const handleOpenPaymentSheet = () => {
-    setIsPaymentSheetOpen(true);
-  };
-
-  // ------------------- 충돌
-  //  try {
-  // API call to delete selected items
-  //    await fetchDeleteAllCarts(selectedItems); // API 호출
-
   const handelAddBuy = () => {
-    const selectedItems = cartItems.filter(item => item.isChecked);
+    const selectedItems = cartItems.filter(item =>
+      selectedCartIds.includes(item._id),
+    );
 
     const purchaseData = selectedItems.map(item => ({
-      id: item.product._id.toString(),
-      name: item.product.name,
-      originalPrice: item.product.extra.originalPrice,
-      price: item.product.price,
+      id: item._id.toString(),
+      name: item.name,
+      price: item.price,
       quantity: item.quantity,
-      size: item.product.size,
-      color: item.product.color,
-      productImg: item.product.image.path || '',
+      size: item.size,
+      color: item.color,
+      productImg: item.mainImages[0] || '',
     }));
 
     console.log('purchaseData', purchaseData);
@@ -146,31 +105,31 @@ export default function CartPage() {
       {/* 전체 선택 */}
       <div className="relative flex">
         <button
-          onClick={handleAllSelect}
-          aria-label={isAllChecked ? '전체 상품 선택' : '전체 상품 선택 해제'}
+          onClick={selectAllCartItems}
+          aria-label="전체 상품 선택"
           className="absolute top-3.5"
         >
-          {isAllChecked ? (
-            <Image
-              src="/check-on.svg"
-              alt="전체 선택 설정 버튼"
-              width={20}
-              height={20}
-              className="ml-5"
-            />
-          ) : (
-            <Image
-              src="/check-off.svg"
-              alt="전체 선택 설정 버튼"
-              width={20}
-              height={20}
-              className="ml-5"
-            />
-          )}
+          <Image
+            src="/check-on.svg"
+            alt="전체 선택 설정 버튼"
+            width={20}
+            height={20}
+            className="ml-5"
+          />
         </button>
-        <span className="relative top-3 left-14 text-lg leading-6 font-semibold">
-          전체 선택
-        </span>
+        <button
+          onClick={deselectAllCartItems}
+          aria-label="전체 상품 선택 해제"
+          className="absolute top-3.5 left-20"
+        >
+          <Image
+            src="/check-off.svg"
+            alt="전체 선택 해제 버튼"
+            width={20}
+            height={20}
+            className="ml-5"
+          />
+        </button>
         <button
           className="absolute top-3 right-5 text-[#FE5088]"
           onClick={handleSelectedRemove}
@@ -185,34 +144,15 @@ export default function CartPage() {
         {cartItems.map((item, index) => (
           <CartItemCard
             cartId={item._id}
-            key={`${item.product._id}-${item.product.name}-${index}`}
-            id={item.product._id}
-            path={item.product.image.path}
-            name={item.product.name}
-            price={item.product.price}
-            quantity={item.quantity} // 수정된 부분
-            isChecked={item.isChecked}
-            onCheck={handleItemCheck}
+            key={`${item._id}-${item.name}-${index}`}
+            id={item._id}
+            path={item.mainImages[0]}
+            name={item.name}
+            price={item.price}
+            quantity={item.quantity}
+            isChecked={selectedCartIds.includes(item._id)}
           />
         ))}
-      </div>
-
-      {/* 결제 정보 */}
-      <div className="my-6 ml-4 flex flex-col gap-y-4">
-        <div>
-          <span className="text-[#4B5563]">총 상품금액</span>
-          <span className="absolute right-4 font-medium">192,000원</span>
-        </div>
-        <div>
-          <span className="text-[#4B5563]">배송비</span>
-          <span className="absolute right-4">무료</span>
-        </div>
-        <div>
-          <span className="text-lg leading-6 font-semibold">총 결제금액</span>
-          <span className="absolute right-4 text-lg leading-6 font-semibold text-[#6E67DA]">
-            192,000원
-          </span>
-        </div>
       </div>
 
       {/* 결제 버튼 */}

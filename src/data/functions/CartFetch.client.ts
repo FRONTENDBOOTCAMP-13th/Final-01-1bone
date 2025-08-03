@@ -3,6 +3,7 @@
 import { Product, ProductListRes } from '@/types';
 import { useAuthStore } from '@/store/auth.store';
 import {
+  CartItem,
   AddToCartRes,
   CartListRes,
   CartQuantityUpdateRes,
@@ -18,7 +19,6 @@ export async function fetchCartList(
   page: number = 1,
   limit: number = 10,
 ): Promise<CartListRes> {
-  // 디버깅 코드 추가
   console.log('환경 변수 확인:');
   console.log('NEXT_PUBLIC_API_URL:', API_URL);
   console.log('NEXT_PUBLIC_ACCESS_TOKEN:', accessToken);
@@ -42,22 +42,23 @@ export async function fetchCartList(
 
   const data = await res.json();
 
+  // 데이터 디버깅 로그 추가
+  console.log('서버에서 반환된 데이터:', data);
+
   // 데이터 검증
-  if (!data.ok || !Array.isArray(data.item)) {
+  if (!data.item || !Array.isArray(data.item)) {
     console.error('서버 응답 데이터가 올바르지 않습니다:', data);
     throw new Error('서버 응답 데이터 오류');
   }
 
-  // return data;
-  // 데이터 검증 및 기본값 설정
-  const validatedItems = data.item.map(item => ({
-    ...item,
-    price: item.price || 0, // 기본값 설정
-    quantity: item.quantity || 1, // 기본값 설정
-  }));
-
-  return { ...data, item: validatedItems };
+  return {
+    products: data.item.map((item: CartItem) => ({
+      _id: item._id,
+      quantity: item.quantity,
+    })),
+  };
 }
+
 export async function fetchAddToCart({
   product_id,
   quantity,
@@ -151,19 +152,18 @@ export async function deleteCartItem(cartId: number): Promise<DeleteCartsRes> {
       cache: 'no-store',
     });
 
-    console.log('서버 응답 상태 코드:', res.status); // 응답 상태 코드 확인
+    console.log('서버 응답 상태 코드:', res.status);
     if (!res.ok) {
       const errorData = await res.json();
-      console.error('서버 에러 응답:', errorData); // 서버 에러 메시지 확인
+      console.error('서버 에러 응답:', errorData);
       throw new Error(`삭제 실패: ${errorData.message || res.statusText}`);
     }
 
     const responseData = await res.json();
-    console.log('삭제 성공 응답 데이터:', responseData); // 성공 응답 데이터 확인
+    console.log('삭제 성공 응답 데이터:', responseData);
     return responseData;
   } catch (error) {
-    console.error('API 요청 중 오류 발생:', error); // 에러 확인
-    throw error;
+    console.error('API 요청 중 오류 발생:', error);
   }
 }
 

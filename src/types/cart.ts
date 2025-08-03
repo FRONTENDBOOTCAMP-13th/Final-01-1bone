@@ -30,9 +30,14 @@ export interface CartItem {
     };
   };
   // mainImages: { path: string }[];
-  quantity: number; // quantity를 직접 포함
   isChecked?: boolean;
   _id: number;
+  name: string;
+  price: number;
+  quantity: number;
+  mainImages: string[];
+  size?: string | number;
+  color?: string;
 }
 
 // CartItemCard 컴포넌트
@@ -52,6 +57,7 @@ export interface CardItemCardProps {
 export interface CartListRes {
   ok: number;
   item: CartItem[];
+  products: CartItem[];
 }
 
 // 장바구니 상품 여러건 삭제
@@ -106,5 +112,3 @@ export type CartContextType = {
   cartCount: number;
   setCartCount: (count: number) => void;
 };
-
-// export interface CartContextType {
