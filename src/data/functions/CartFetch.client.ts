@@ -138,25 +138,33 @@ export async function fetchDeleteAllCarts(
 }
 
 // 장바구니 상품 한 건 삭제
-export async function deleteCartItem(id: number): Promise<DeleteCartsRes> {
-  const res = await fetch(`${API_URL}/carts/${id}`, {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-      'Client-Id': CLIENT_ID,
-      Authorization: `Bearer ${accessToken}`,
-    },
-    cache: 'no-store',
-  });
+export async function deleteCartItem(cartId: number): Promise<DeleteCartsRes> {
+  try {
+    console.log('삭제 요청 cartId:', cartId); // 요청 ID 확인
+    const res = await fetch(`${API_URL}/carts/${cartId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Client-Id': CLIENT_ID,
+        Authorization: `Bearer ${accessToken}`,
+      },
+      cache: 'no-store',
+    });
 
-  const responseData = await res.json();
-  console.log('서버 응답 데이터:', responseData); // 서버 응답 데이터 확인
+    console.log('서버 응답 상태 코드:', res.status); // 응답 상태 코드 확인
+    if (!res.ok) {
+      const errorData = await res.json();
+      console.error('서버 에러 응답:', errorData); // 서버 에러 메시지 확인
+      throw new Error(`삭제 실패: ${errorData.message || res.statusText}`);
+    }
 
-  if (!res.ok) {
-    console.error('삭제 실패:', res.status, res.statusText);
-    throw new Error('삭제 실패');
+    const responseData = await res.json();
+    console.log('삭제 성공 응답 데이터:', responseData); // 성공 응답 데이터 확인
+    return responseData;
+  } catch (error) {
+    console.error('API 요청 중 오류 발생:', error); // 에러 확인
+    throw error;
   }
-  return responseData;
 }
 
 // 장바구니 상품 수량 수정

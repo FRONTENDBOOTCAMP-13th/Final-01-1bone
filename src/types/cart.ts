@@ -24,8 +24,8 @@ export interface CartItem {
     };
     name: string;
     price: number;
-    quantity: number;
   };
+  quantity: number; // quantity를 직접 포함
   isChecked?: boolean;
 }
 
@@ -97,4 +97,8 @@ interface RawCartItem {
 export type CartContextType = {
   cartItems: CartItem[];
   setCartItems: (items: CartItem[]) => void;
+  cartCount: number;
+  setCartCount: (count: number) => void;
 };
+
+// export interface CartContextType {

@@ -14,7 +14,9 @@ export interface Product {
   show: boolean;
   active: boolean;
   name: string;
-  quantity: number;
+  item: {
+    quantity: number;
+  };
   buyQuantity: number;
   mainImages: ImageFiles[];
   content: ImageFiles[];
@@ -101,7 +103,9 @@ export interface CartActionsProps {
 // 상품 수량 선택 컴포넌트
 export interface ProductQuantitySelectorProps {
   selectedOption: string;
-  quantity: number;
+  item: {
+    quantity: number;
+  };
   onIncrease: () => void;
   onDecrease: () => void;
   price: number;
