@@ -61,7 +61,7 @@ export default async function ProductPage({
         colors={[]}
       />
 
-      <h2 className="p-5 text-[18px] font-semibold">상품정보</h2>
+      <h2 className="px-4 py-2 text-[12px] text-[#121212]">상품정보</h2>
       <div className="relative mb-1 w-full">
         <Image
           layout="intrinsic"

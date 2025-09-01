@@ -170,7 +170,6 @@ export default function CartAction({
             price: item.price,
           }))}
           // 버튼 비활성화 조건 전달
-          cartButtonDisabled={loading || (hasOptions && !isOptionSelected)}
         />
       </div>
 
@@ -196,14 +195,14 @@ export default function CartAction({
           }`}
         >
           <div className="flex justify-center">
-            <div className="mt-2.5 h-[4px] w-[109px] rounded-full bg-[#3D3D3D]" />
+            <div className="mt-1.5 h-[4px] w-[100px] rounded-full bg-[#EAEAEA]" />
           </div>
 
           {hasOptions ? (
             <>
               {/* 사이즈 옵션 */}
               {options.size && (
-                <div className="bg-white px-4 pt-3.5">
+                <div className="bg-white px-4 pt-3.5 pb-3">
                   <OptionSelector
                     name="사이즈"
                     options={options.size}
@@ -215,7 +214,7 @@ export default function CartAction({
               )}
 
               {options.color && (
-                <div className="bg-white px-5 pt-3.5">
+                <div className="bg-white px-4 pt-3.5 pb-3">
                   <OptionSelector
                     name="색상"
                     options={options.color}
